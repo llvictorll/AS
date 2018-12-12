@@ -12,7 +12,8 @@ la base des GANs qui marche, le papier résume la plus part des tricks à utilis
  
 ##  Arborescence du repository
     ├── README.md
-    ├── network             <- réseaux 
-    |── data                <- chargement des données
-    |── noise               <- module de bruit
-    |── main                <- script pour l'entrînement
+    ├── network.py             <- réseaux 
+    |── data.py                <- chargement des données
+    |── noise.py               <- module de bruit
+    |── utils.py               <- fonctions utiles
+    |── main.py                <- script pour l'entrînement
