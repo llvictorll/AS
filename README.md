@@ -25,4 +25,6 @@
     |── data.py                <- chargement des données
     |── noise.py               <- module de bruit
     |── utils.py               <- fonctions utiles
-    |── main.py                <- script pour l'entraînement
+    |── train.py               <- entrainement du réseau
+    |── utils.py               <- fonction utile (torch2numpy, affichage, sauvegarde...)
+    |── __main__.py            <- main
