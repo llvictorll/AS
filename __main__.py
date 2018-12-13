@@ -4,7 +4,7 @@ import argparse
 import torchvision.transforms as transforms
 
 from network import Generator, Discriminator
-from noise import F_bruit, Patch_block
+from noise import BlockPixel, BlockPatch
 from utils import *
 from dataset import CelebADatasetNoise
 from train import train
@@ -17,8 +17,8 @@ parser.add_argument('--ngf', type=int, default=32, help="Base size of feature ma
 parser.add_argument('--lrD', type=float, default=0.0002, help="Learning rate for the discriminator")
 parser.add_argument('--lrG', type=float, default=0.0003, help="Learning rate for the generator")
 parser.add_argument('--batch_size', type=int, default=128, help="Number of image per batch")
-parser.add_argument('--save_file', type=str, default='/tmp', help="root where save result")
-parser.add_argument('--load_file', type=str, default='/tmp', help="root where load dataset")
+parser.add_argument('--save_file', type=str, default='./log/base', help="root where save result")
+parser.add_argument('--load_file', type=str, default='/home/victor/dataset/img_align_celeba', help="root where load dataset")
 parser.add_argument('--param', type=int, default=None, help="params for noise")
 opt = parser.parse_args()
 
@@ -33,7 +33,7 @@ netG = Generator(opt.nz, opt.ngf).to(device)
 netD = Discriminator(opt.ndf).to(device)
 optimizerG = optim.Adam(netG.parameters(), opt.lrG, betas=(0.5, 0.999))
 optimizerD = optim.Adam(netD.parameters(), opt.lrD, betas=(0.5, 0.999))
-noise_module = F_bruit(opt.param)
+noise_module = BlockPixel(opt.param)
 
 ###########
 # Load Data
@@ -51,4 +51,4 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True, n
 ############
 # Train
 ############
-train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, opt)
+train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, opt.save_file, opt.epoch)

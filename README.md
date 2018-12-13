@@ -11,7 +11,7 @@
 
     la base des GANs qui marche, le papier résume la plus part des tricks à utiliser pour stabiliser l'entraînement du générateur et du discriminateur.
 
-* AMBIENTGAN: https://arxiv.org/pdf/1511.06434.pdf
+* AMBIENTGAN: https://openreview.net/pdf?id=BJg4Z3RqF7
  
     le papier présente l'un architecture de base pour le dé-bruitage de d'image. Notre papier améliore juste celui la.
 

@@ -7,26 +7,25 @@ from tqdm import tqdm
 from dataset import *
 
 
-
-def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, opt):
-    print(opt.file)
-    save_net(opt.file, netG, netD)
-    sauvegarde_init(opt.file)
+def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, file, epoch):
+    print(file)
+    save_net(file, netG, netD)
+    sauvegarde_init(file)
     netG.train()
     netD.train()
     cpt = 0
     dTrue, dFalse, mse, ref = [], [], [], []
     turn = True
 
-    bar_epoch = tqdm(range(opt.epoch))
+    bar_epoch = tqdm(range(epoch))
     bar_data = tqdm(range(len(dataloader)))
 
     for _ in bar_epoch:
         for i, (x, xb) in zip(bar_data, dataloader):
             if turn:
                 save_xb = xb
-                print_img(save_xb, 'image_de_base_bruit', opt.file)
-                print_img(x, 'image_de_base_sans_bruit', opt.file)
+                print_img(save_xb, 'image_de_base_bruit', file)
+                print_img(x, 'image_de_base_sans_bruit', file)
                 turn = False
                 continue
 
@@ -73,9 +72,9 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
             bar_data.set_postfix({"qual": np.array(mse).mean(),
                                   "ref": np.array(ref).mean()})
 
-            sauvegarde(opt.file, np.array(dTrue).mean(), np.array(dFalse).mean(), np.array(mse).mean(), np.array(ref).mean())
+            sauvegarde(file, np.array(dTrue).mean(), np.array(dFalse).mean(), np.array(mse).mean(), np.array(ref).mean())
 
             if i % 250 == 1:
-                printG(save_xb, cpt, netG, opt.file)
+                printG(save_xb, cpt, netG, file)
                 cpt += 1
                 dTrue, dFalse, mse, ref = [], [], [], []
