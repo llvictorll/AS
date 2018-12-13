@@ -4,9 +4,9 @@ import torch.nn.functional as F
 import numpy as np
 
 
-class F_bruit(nn.Module):
+class BlockPixel(nn.Module):
     def __init__(self, param):
-        super(F_bruit, self).__init__()
+        super(BlockPixel, self).__init__()
         self.param = param
         self.r = None
 
@@ -21,10 +21,11 @@ class F_bruit(nn.Module):
         return self.r * x
 
 
-class Patch_block(nn.Module):
+class BlockPatch(nn.Module):
     def __init__(self, taille):
-        super(Patch_block, self).__init__()
+        super(BlockPatch, self).__init__()
         self.taille = taille
+        self.r = None
 
     def forward(self, x):
         w = np.random.randint(0, 64 - self.taille)

@@ -2,7 +2,6 @@ import scipy.misc
 import torchvision.utils as vutils
 import numpy as np
 import os
-from PIL import Image
 
 
 def imshow(img):
