@@ -28,7 +28,7 @@ class Generator(nn.Module):
     def __init__(self, nz, ngf, nc=3):
         super(Generator, self).__init__()
         self.model = nn.Sequential(
-            nn.ConvTranspose2d(nz, ngf*8, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.ConvTranspose2d(nz, ngf*8, kernel_size=4, stride=1, padding=0, bias=False),
             nn.BatchNorm2d(ngf*8),
             nn.ReLU(),
             nn.ConvTranspose2d(ngf * 8, ngf * 4, kernel_size=4, stride=2, padding=1, bias=False),

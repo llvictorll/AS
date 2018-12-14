@@ -3,7 +3,7 @@ import torchvision.utils as vutils
 import numpy as np
 import os
 
-base_file= "/home/victor/PycharmProject/AS/project/log/"
+base_file= "/home/victor/PycharmProject/AS/project/base/"
 
 def imshow(img):
     img = img / 2 + 0.5
@@ -28,7 +28,7 @@ def printG(x, k, netG, file):
 def print_img(x, name, file):
     if not os.path.exists(file):
         os.makedirs(file)
-    scipy.misc.imsave( file + '/' + name + '.png', imshow(vutils.make_grid(x).data))
+    scipy.misc.imsave(file + '/' + name + '.png', imshow(vutils.make_grid(x).data))
 
 
 def sauvegarde_init(file):
@@ -46,7 +46,7 @@ def sauvegarde(file, *agr):
 
 
 def save_net(file, *args):
-    with open(+ file + "/net.txt", 'a') as f:
+    with open(file + "/net.txt", 'w') as f:
         for a in args:
             f.write(str(a)+'\n')
 

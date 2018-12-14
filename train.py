@@ -56,7 +56,8 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
             outputG = noise_module(netG(xb))
             outputDbruit = netD(outputG)
             lossBruit = F.binary_cross_entropy_with_logits(outputDbruit, real_label)
-            lossSupervise = F.mse_loss(netG(xb2), x2)
+
+            lossSupervise = F.mse_loss(noise_module(netG(xb2)), noise_module(x2))
 
             (lossBruit+lossSupervise).backward()
             optimizerG.step()

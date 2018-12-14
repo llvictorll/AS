@@ -17,7 +17,7 @@ parser.add_argument('--ngf', type=int, default=32, help="Base size of feature ma
 parser.add_argument('--lrD', type=float, default=0.0002, help="Learning rate for the discriminator")
 parser.add_argument('--lrG', type=float, default=0.0003, help="Learning rate for the generator")
 parser.add_argument('--batch_size', type=int, default=128, help="Number of image per batch")
-parser.add_argument('--save_file', type=str, default='./log/base', help="root where save result")
+parser.add_argument('--save_file', type=str, default='./base/base', help="root where save result")
 parser.add_argument('--load_file', type=str, default='/home/victor/dataset/img_align_celeba', help="root where load dataset")
 parser.add_argument('--param', type=int, default=None, help="params for noise")
 opt = parser.parse_args()
