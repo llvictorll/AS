@@ -133,7 +133,7 @@ class CelebADataset(torch.utils.data.Dataset):
 
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    file = './log/base'
+    file = './log/gpu'
     netG = NetG(128, 32).to(device)
     netD = NetD(32).to(device)
     epoch = 100

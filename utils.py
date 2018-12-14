@@ -6,15 +6,15 @@ import os
 base_file= "/home/victor/PycharmProject/AS/project/base/"
 
 def imshow(img):
-    img = img / 2 + 0.5
+    #img = img / 2 + 0.5
     npimg = (img.cpu()).numpy()
     return np.transpose(npimg, (1, 2, 0))
 
 
 def torch2PIL(img):
-    img = img / 2 + 0.5
+    #img = img / 2 + 0.5
     img = np.transpose(img, (1, 2, 0))
-    img = np.array(img*255, dtype='uint8')
+    #img = np.array(img*256, dtype='uint8')
     return img
 
 
@@ -22,13 +22,13 @@ def printG(x, k, netG, file):
     if not os.path.exists(file):
         os.makedirs(file)
     o = netG(x)
-    scipy.misc.imsave(file+'/g{}.png'.format(k), imshow(vutils.make_grid(o.data)))
+    scipy.misc.imsave(file+'/g{}.png'.format(k), imshow(vutils.make_grid(o.data, padding=2, normalize=True)))
 
 
 def print_img(x, name, file):
     if not os.path.exists(file):
         os.makedirs(file)
-    scipy.misc.imsave(file + '/' + name + '.png', imshow(vutils.make_grid(x).data))
+    scipy.misc.imsave(file + '/' + name + '.png', imshow(vutils.make_grid(x, padding=2, normalize=True).data))
 
 
 def sauvegarde_init(file):
