@@ -21,7 +21,10 @@
  
 ##  Arborescence du repository
     ├── README.md
-    ├── network.py             <- réseaux 
+    ├── log                    <- résultat
+    ├── network                <- réseaux
+    |      ├── SAGAN.py
+    |      └── DCGAN.py      
     |── data.py                <- chargement des données
     |── noise.py               <- module de bruit
     |── utils.py               <- fonctions utiles

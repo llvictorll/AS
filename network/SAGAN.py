@@ -206,5 +206,5 @@ if __name__ == '__main__':
 
             if i % 100 == 1:
                 printG(z, cpt, netG, file)
-                #cpt += 1
+                cpt += 1
                 dTrue, dFalse = [], []
