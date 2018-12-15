@@ -3,7 +3,7 @@ import torch.optim as optim
 import argparse
 import torchvision.transforms as transforms
 
-from network import Generator, Discriminator
+from SAGAN import NetG, NetD
 from noise import BlockPixel, BlockPatch
 from utils import *
 from dataset import CelebADatasetNoise
@@ -11,7 +11,6 @@ from train import train
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=25, help="nb iterations for training")
-parser.add_argument('--nz', type=int, default=128, help="Size of z latent vector (i.e. size of generator input)")
 parser.add_argument('--ndf', type=int, default=32, help="Base size of feature maps in discriminator")
 parser.add_argument('--ngf', type=int, default=32, help="Base size of feature maps in generator")
 parser.add_argument('--lrD', type=float, default=0.0002, help="Learning rate for the discriminator")
@@ -29,8 +28,8 @@ opt = parser.parse_args()
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-netG = Generator(opt.nz, opt.ngf).to(device)
-netD = Discriminator(opt.ndf).to(device)
+netG = NetG(opt.ngf).to(device)
+netD = NetD(opt.ndf).to(device)
 optimizerG = optim.Adam(netG.parameters(), opt.lrG, betas=(0.5, 0.999))
 optimizerD = optim.Adam(netD.parameters(), opt.lrD, betas=(0.5, 0.999))
 noise_module = BlockPixel(opt.param)
