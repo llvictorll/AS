@@ -8,6 +8,8 @@ from noise import BlockPixel, BlockPatch
 from utils import *
 from dataset import CelebADatasetNoise
 from train import train
+from utils import sauvegarde_arg
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch', type=int, default=25, help="nb iterations for training")
@@ -20,7 +22,8 @@ parser.add_argument('--save_file', type=str, default='./log/base', help="root wh
 parser.add_argument('--load_file', type=str, default='/home/victor/dataset/img_align_celeba', help="root where load dataset")
 parser.add_argument('--param', type=float, default=None, help="params for noise")
 opt = parser.parse_args()
-
+print(opt)
+sauvegarde_arg(opt.save_file, opt)
 
 ###############
 # init variable
@@ -44,8 +47,7 @@ dataset = CelebADatasetNoise(opt.load_file,
                                                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                  ]))
 
-dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True, num_workers=1, drop_last=True)
-
+dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True, drop_last=True)
 
 ############
 # Train

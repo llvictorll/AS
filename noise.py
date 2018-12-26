@@ -5,19 +5,18 @@ import numpy as np
 
 
 class BlockPixel(nn.Module):
-    def __init__(self, param):
+    def __init__(self, param=0.9):
         super(BlockPixel, self).__init__()
         self.param = param
         self.r = None
 
     def forward(self, x):
-        print(x.size())
         self.r = torch.rand(x.size())
         self.r = np.where(self.r < self.param, 0, 1)
-        if isinstance(x, torch.cuda.FloatTensor):
-            self.r = torch.tensor(self.r, device='cuda', dtype=torch.float32, requires_grad=False)
-        else:
-            self.r = torch.tensor(self.r, device='cpu', dtype=torch.float32, requires_grad=False)
+        #if isinstance(x, torch.cuda.FloatTensor):
+        #    self.r = torch.tensor(self.r, device='cuda', dtype=torch.float32, requires_grad=False)
+        #else:
+        self.r = torch.tensor(self.r, device='cpu', dtype=torch.float32, requires_grad=False)
 
         return self.r * x
 

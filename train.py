@@ -19,7 +19,6 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
 
     bar_epoch = tqdm(range(epoch))
     bar_data = tqdm(range(len(dataloader)))
-
     for _ in bar_epoch:
         for i, (x, xb) in zip(bar_data, dataloader):
             if turn:
@@ -29,12 +28,15 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
                 turn = False
                 continue
 
-            real_label = torch.FloatTensor(x.size(0)*9).fill_(.9).to(device)
-            fake_label = torch.FloatTensor(x.size(0)*9).fill_(.1).to(device)
+
+            real_label = torch.FloatTensor(x.size(0)).fill_(.9).to(device)
+            fake_label = torch.FloatTensor(x.size(0)).fill_(.1).to(device)
 
             xref = noise_module(x).to(device)
             x2 = netG(xref).to(device)
             xb2 = noise_module(x2).to(device)
+            x = x.to(device)
+            xb = xb.to(device)
 
             # train D
             optimizerD.zero_grad()
@@ -51,29 +53,26 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
             optimizerD.step()
 
             # train G
-
             optimizerG.zero_grad()
             outputG = noise_module(netG(xb))
             outputDbruit = netD(outputG)
             lossBruit = F.binary_cross_entropy_with_logits(outputDbruit, real_label)
 
-            lossSupervise = F.mse_loss(noise_module(netG(xb2)), noise_module(x2))
+            outputMSE = noise_module(netG(xb2))
+            lossSupervise = F.mse_loss(outputMSE, noise_module(x2))
 
             (lossBruit+lossSupervise).backward()
             optimizerG.step()
 
             #test
-            dTrue.append(F.sigmoid(outputTrue).data.mean())
-            dFalse.append(F.sigmoid(outputFalse).data.mean())
+            dTrue.append(torch.sigmoid(outputTrue).data.mean())
+            dFalse.append(torch.sigmoid(outputFalse).data.mean())
             mse.append(F.mse_loss(netG(xb).detach(), x))
-            ref.append(F.mse_loss(x, F.upsample(xb, scale_factor=2)))
 
-            bar_epoch.set_postfix({"Dset": np.array(dTrue).mean(),
-                                   "G": np.array(dFalse).mean()})
-            bar_data.set_postfix({"qual": np.array(mse).mean(),
-                                  "ref": np.array(ref).mean()})
+            bar_epoch.set_postfix({"D(x)": np.array(dTrue).mean(), "D(G(x))": np.array(dFalse).mean()})
+            bar_data.set_postfix({"qual": np.array(mse).mean()})
 
-            sauvegarde(file, np.array(dTrue).mean(), np.array(dFalse).mean(), np.array(mse).mean(), np.array(ref).mean())
+            sauvegarde(file, np.array(dTrue).mean(), np.array(dFalse).mean(), np.array(mse).mean())
 
             if i % 250 == 1:
                 printG(save_xb, cpt, netG, file)
