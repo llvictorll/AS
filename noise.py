@@ -11,6 +11,7 @@ class BlockPixel(nn.Module):
         self.r = None
 
     def forward(self, x):
+        print(x.size())
         self.r = torch.rand(x.size())
         self.r = np.where(self.r < self.param, 0, 1)
         if isinstance(x, torch.cuda.FloatTensor):
