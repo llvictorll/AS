@@ -84,7 +84,7 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
             sauvegarde(file, np.array(dTrue).mean(), np.array(dFalse).mean(), np.array(mse).mean())
 
             if i % 100 == 0 and i != 0:
-                alpha += 0.01
+                alpha += 0.001
                 alpha = min(alpha, 2)
 
             if i % 250 == 1:

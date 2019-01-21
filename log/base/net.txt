@@ -1,4 +1,4 @@
-Namespace(batch_size=64, epoch=25, load_file='/home/victor/dataset/img_align_celeba', lrD=0.0004, lrG=0.0001, ndf=32, ngf=32, param=0.9, save_file='./log/base')
+Namespace(alpha=2.0, batch_size=64, epoch=25, load_file='/home/victor/dataset/img_align_celeba', lrD=0.0001, lrG=0.0004, ndf=32, ngf=32, param=0.9, save_file='./log/base')
 CNetG(
   (conv1): Conv2d(3, 32, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
   (conv2): Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1), bias=False)
