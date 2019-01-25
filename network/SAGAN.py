@@ -3,9 +3,6 @@ from torch import nn
 from torch.nn.utils import spectral_norm
 import torch.nn.functional as F
 
-num_classes = 1
-
-
 class Self_AttentionLayer(nn.Module):
     """ self_attention module to allow the Gan to capture long-range dependencies
         in images"""

@@ -5,36 +5,35 @@ import numpy as np
 from utils import save_net, sauvegarde_init, print_img, sauvegarde, printG
 from tqdm import tqdm
 from dataset import *
+from collections import deque
 
 
-def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, file, epoch, alpha):
+def train(netG, netD, noise_module, optimizerD, optimizerG, trainloader, valloader, device, batch_size, file, epoch,
+          alpha):
     print(file)
     save_net(file, netG, netD)
-    sauvegarde_init(file)
+    sauvegarde_init(file, "train")
+    sauvegarde_init(file, "eval")
     netG.train()
     netD.train()
     cpt = 0
-    dTrue, dFalse, mse = [0], [0], [0]
+    dTrue = deque(maxlen=1000)
+    dFalse = deque(maxlen=1000)
+    mse_train = deque(maxlen=1000)
+    mse_val = deque(maxlen=1000)
     turn = True
-    alpha = 0
-    bar_epoch = tqdm(range(epoch))
-    bar_data = tqdm(range(len(dataloader)))
-    for _ in bar_epoch:
-        for i, (ref, y) in zip(bar_data, dataloader):
-            if turn:
-                save_xb = y
-                print_img(save_xb, 'image_de_base_bruit', file)
-                print_img(ref, 'image_de_base_sans_bruit', file)
-                turn = False
-                continue
+    filtre_size = (batch_size, 3, 64, 64)
 
+    bar_epoch = tqdm(range(epoch))
+    bar_data = tqdm(range(len(trainloader)))
+    for e in bar_epoch:
+        for i, (ref, y) in zip(bar_data, trainloader):
             real_label = torch.FloatTensor(ref.size(0)).fill_(.9).to(device)
             fake_label = torch.FloatTensor(ref.size(0)).fill_(.1).to(device)
 
             ref = ref.to(device)
             y = y.to(device)
-
-            if i % 2 == 0:
+            if i % 3 in [0, 1]:
                 ################
                 # train D
                 ################
@@ -46,7 +45,8 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
 
                 # avec de faux labels
                 x_hat = netG(y).detach()
-                y_hat = noise_module(x_hat)
+                filtreD = noise_module.forward(filtre_size, device)
+                y_hat = x_hat * filtreD
                 outputFalse = netD(y_hat)
                 lossDF = F.binary_cross_entropy_with_logits(outputFalse, fake_label)
                 (lossDF + lossDT).backward()
@@ -63,31 +63,54 @@ def train(netG, netD, noise_module, optimizerD, optimizerG, dataloader, device, 
                 optimizerG.zero_grad()
 
                 # improve G with Discriminator
+                filtreG = noise_module.forward(filtre_size, device)
                 x_hat = netG(y)
-                y_hat = noise_module(x_hat)
+                y_hat = filtreG * x_hat
                 outputDbruit = netD(y_hat)
                 lossBruit = F.binary_cross_entropy_with_logits(outputDbruit, real_label)
 
-                # improve G with MSE
+                # imporve G with MSE
                 x_tilde = netG(y_hat)
-                y_tilde = noise_module(x_tilde, pretrain=True)
+                y_tilde = filtreG * x_tilde.detach()
 
                 lossSupervise = F.mse_loss(y_hat, y_tilde)
 
-                (lossBruit + alpha * lossSupervise).backward()
+                (alpha * lossSupervise + lossBruit).backward()
                 optimizerG.step()
 
-            #print
-            mse.append(F.mse_loss(x_hat, ref))
-            bar_data.set_postfix({"qual": np.array(mse).mean(), "cpt:": cpt})
+            # test
+            mse_train.append(F.mse_loss(x_hat, ref).data)
+            bar_data.set_postfix({"qual": np.array(mse_train).mean()})
 
-            sauvegarde(file, np.array(dTrue).mean(), np.array(dFalse).mean(), np.array(mse).mean())
-
-            if i % 100 == 0 and i != 0:
-                alpha += 0.001
-                alpha = min(alpha, 2)
+            sauvegarde(file, "train", np.array(dTrue).mean(), np.array(dFalse).mean(), np.array(mse_train).mean())
 
             if i % 250 == 1:
-                printG(save_xb, cpt, netG, file)
+
                 cpt += 1
-                dTrue, dFalse, mse, ref = [0], [0], [0], [0]
+                netG.eval()
+                bar_test = tqdm(range(len(valloader)))
+                for j, (ref, y) in zip(bar_test, valloader):
+                    if turn:
+                        save_xb = y.to(device)
+                        print_img(save_xb, 'image_de_base_bruit', file)
+                        print_img(ref, 'image_de_base_sans_bruit', file)
+                        turn = False
+                    ref = ref
+                    y = y.to(device)
+
+                    #############
+                    # eval G
+                    #############
+                    img_gen = netG(y).detach().cpu()
+
+                    mse_val.append(F.mse_loss(ref, img_gen))
+                    sauvegarde(file, "eval", np.array(mse_val).mean())
+
+                printG(save_xb, cpt, netG, file)
+                netG.train()
+
+            if i % 400 == 0 and i > 0:
+                for g in optimizerD.param_groups:
+                    g['lr'] *= 0.995
+                for g in optimizerG.param_groups:
+                    g['lr'] *= 0.995

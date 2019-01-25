@@ -26,7 +26,8 @@ class CelebADatasetNoise(torch.utils.data.Dataset):
         img = self.transform(image)
         if img.size(0) == 1:
             img = img.expand(3, img.size(1), img.size(2))
-        imgb = self.f_bruit(img)
+        filtre = self.f_bruit.forward((1,3,64,64), 'cpu')
+        imgb = img * filtre.squeeze()
         return img, imgb
 
 
@@ -51,4 +52,3 @@ class CelebADataset(torch.utils.data.Dataset):
         if img.size(0) == 1:
             img = img.expand(3, img.size(1), img.size(2))
         return img
-
