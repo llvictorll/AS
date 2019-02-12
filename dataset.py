@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 
 
 class CelebADatasetNoise(torch.utils.data.Dataset):
-    """Load CelebA Dataset"""
+    """Load the noisy CelebA Dataset"""
     def __init__(self, imgFolder, f_bruit, transform=transforms.ToTensor()):
         super(CelebADatasetNoise, self).__init__()
         self.imgFolder = imgFolder
@@ -26,8 +26,8 @@ class CelebADatasetNoise(torch.utils.data.Dataset):
         img = self.transform(image)
         if img.size(0) == 1:
             img = img.expand(3, img.size(1), img.size(2))
-        filtre = self.f_bruit.forward((1,3,64,64), 'cpu')
-        imgb = img * filtre.squeeze()
+        filtre, noise = self.f_bruit.forward((1,3,64,64), 'cpu')
+        imgb = img * filtre.squeeze() + noise
         return img, imgb
 
 

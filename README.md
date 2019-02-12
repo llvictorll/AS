@@ -25,7 +25,7 @@
     ├── network                <- réseaux
     |      ├── SAGAN.py
     |      └── DCGAN.py      
-    |── data.py                <- chargement des données
+    |── dataset.py             <- chargement des données
     |── noise.py               <- module de bruit
     |── utils.py               <- fonctions utiles
     |── train.py               <- entrainement du réseau

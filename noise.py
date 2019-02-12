@@ -2,67 +2,110 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from scipy import ndimage
 
 
-class BlockPixel():
+class BlockPixel(nn.Module):
+    """This class remove random pixel in the image"""
     def __init__(self, param=0.9):
+        """args:
+                param: float -> pourcent of the pixel to delete
+        """
         super(BlockPixel, self).__init__()
         self.param = param
         self.r = None
 
-    def forward(self, size, device):
-        self.r = torch.rand(size)
-        self.r = torch.where(self.r < self.param, torch.tensor(0), torch.tensor(1))
-        self.r = torch.tensor(self.r, device=device, dtype=torch.float32, requires_grad=False)
+    def forward(self, size, device='cuda:0'):
+        """ ccompute the filter
+            args:
+                size: torch.size -> the size of the filter to return
+                device: torch.device -> the device for the tensor to return
+            return:
+                filtre: tensor -> the filter
+        """
+        filtre = torch.rand(size)
+        filtre = torch.where(filtre < self.param, torch.tensor(0), torch.tensor(1))
+        filtre = torch.tensor(filtre, device=device, dtype=torch.float32, requires_grad=False)
 
-        return self.r
+        return filtre, 0
 
 
 class Patch_block(nn.Module):
+    """This class keep a patch from the image"""
     def __init__(self, taille):
+        """args:
+                taille: float -> size of the square to keep
+        """
         super(Patch_block, self).__init__()
         self.taille = taille
 
     def forward(self, size, device='cuda:0'):
+        """ ccompute the filter
+            args:
+                size: torch.size -> the size of the filter to return
+                device: torch.device -> the device for the tensor to return
+            return:
+                filtre: tensor -> the filter
+        """
         w = np.random.randint(0, high=(64 - self.taille), size=size[0])
         h = np.random.randint(0, high=(64 - self.taille), size=size[0])
-        self.r = torch.ones(size)
+        filtre = torch.ones(size)
         for i in range(size[0]):
-            self.r[i, :, w[i]:w[i] + self.taille, h[i]:h[i] + self.taille] = 0
-        self.r = torch.tensor(self.r, device=device, dtype=torch.float32, requires_grad=False)
+            filtre[i, :, w[i]:w[i] + self.taille, h[i]:h[i] + self.taille] = 0
+        filtre = torch.tensor(filtre, device=device, dtype=torch.float32, requires_grad=False)
 
-        return self.r
+        return filtre, 0
 
 
 class Band_block(nn.Module):
+    """This class remove a patch from the image"""
     def __init__(self, taille):
+        """args:
+                taille: float -> pourcent of the pixel to delete
+        """
         super(Band_block, self).__init__()
         self.taille = taille
 
     def forward(self, size, device='cuda:0'):
+        """ compute the filter
+            args:
+                 size: torch.size -> the size of the filter to return
+                 device: torch.device -> the device for the tensor to return
+            return:
+                 filtre: tensor -> the filter
+        """
         w = np.random.randint(0, high=(64 - self.taille), size=size[0])
-        self.r = torch.ones(size)
+        filtre = torch.ones(size)
         for i in range(size[0]):
-            self.r[i, :, w[i]:w[i] + self.taille] = 0  # self.r[:, w+w +self.taille]
+            filtre[i, :, w[i]:w[i] + self.taille] = 0
 
-        self.r = torch.tensor(self.r, device=device, dtype=torch.float32, requires_grad=False)
+        filtre = torch.tensor(filtre, device=device, dtype=torch.float32, requires_grad=False)
 
-        return self.r
+        return filtre, 0
 
+class Rand_Block(nn.Module):
+    """This class remove a patch wich is a random shape from the image"""
+    def __init__(self, number):
+        """args:
+                taille: float -> pourcent of the pixel to delete
+        """
+        super(Rand_Block, self).__init__()
+        self.n = number
 
-class ConvNoise(nn.Module):
-    def __init__(self, conv_size, noise_variance):
-        super().__init__()
-        self.conv_size = conv_size
-        self.noise_variance = noise_variance
+    def forward(self, size, device='cuda:0'):
+        """ compute the filter
+            args:
+                 size: torch.size -> the size of the filter to return
+                 device: torch.device -> the device for the tensor to return
+            return:
+                 filtre: tensor -> the filter
+        """
 
-    def forward(self, x, device='cpu'):
-        x_measured = x.clone()
-        noise = torch.randn_like(x_measured) * self.noise_variance
-        noise = torch.tensor(noise, device=device, requires_grad=False)
-        eps = torch.ones(1, 1, self.conv_size, self.conv_size, device=device) / (self.conv_size * self.conv_size)
-        for i in range(3):
-            x_measured[:, i:i + 1] = F.conv2d(x[:, i:i + 1], eps, stride=1, padding=self.conv_size // 2)
-        x_measured = x_measured + noise
+        filtre = np.zeros(size[-2:])
+        points = size[-1] * np.random.random((2, self.n ** 2))
+        filtre[(points[0]).astype(np.int), (points[1]).astype(np.int)] = 1
+        im = ndimage.gaussian_filter(filtre, sigma=size[-1] / (4. * self.n))
 
-        return x_measured.clamp(-0.999, 0.9999)
+        mask = torch.where(torch.FloatTensor(im) > im.mean(), torch.tensor(0), torch.tensor(1)).expand(size)
+        mask = torch.tensor(mask, device=device, dtype=torch.float32, requires_grad=False)
+        return mask, 0

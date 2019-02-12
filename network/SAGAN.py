@@ -34,6 +34,7 @@ class Self_AttentionLayer(nn.Module):
 
 class CNetG(nn.Module):
     def __init__(self, ngf, nc=3):
+        """conditionnal SAGAN Generator"""
         super(CNetG, self).__init__()
 
         self.conv1 = spectral_norm(nn.Conv2d(nc, ngf * 1, kernel_size=4, stride=2, padding=1, bias=False))
@@ -77,6 +78,7 @@ class CNetG(nn.Module):
 
 class CNetD(nn.Module):
     def __init__(self, ndf, nc=3):
+        """conditional SAGAN discriminator"""
         super(CNetD, self).__init__()
         self.ndf = ndf
 
@@ -103,6 +105,7 @@ class CNetD(nn.Module):
 
 class NetG(nn.Module):
     def __init__(self, nz, ngf, nc=3):
+        """SAGAN generator"""
         super(NetG, self).__init__()
         self.conv1 = spectral_norm(nn.ConvTranspose2d(nz, ngf * 8, kernel_size=4, stride=1, padding=0, bias=False))
         self.conv2 = spectral_norm(nn.ConvTranspose2d(ngf * 8, ngf * 4, kernel_size=4, stride=2, padding=1, bias=False))
@@ -132,6 +135,7 @@ class NetG(nn.Module):
 
 class NetD(nn.Module):
     def __init__(self, ndf, nc=3):
+        """SAGAN discriminator"""
         super(NetD, self).__init__()
         self.ndf = ndf
 
