@@ -21,7 +21,7 @@ parser.add_argument('--load_file', type=str, default='/home/victor/dataset/img_a
 parser.add_argument('--noise', type=str, default="pixelblock", help="pixelblock|patchblock|bandblock|randblock")
 parser.add_argument('--load_network', type=str, default="", help="load pretrain network start with")
 parser.add_argument('--param', type=float, default=0.9, help="params for noise")
-parser.add_argument('--alpha', type=float, default=2.0, help="hyper_alpha")
+parser.add_argument('--alpha', type=float, default=0.0, help="hyper_alpha")
 opt = parser.parse_args()
 
 ###############
